@@ -667,6 +667,12 @@ FormatToken *FormatTokenLexer::getNextToken() {
         std::find(ForEachMacros.begin(), ForEachMacros.end(),
                   FormatTok->Tok.getIdentifierInfo()) != ForEachMacros.end()) {
       FormatTok->Type = TT_ForEachMacro;
+    } else if (!(Tokens.size() > 0 && Tokens.back()->Tok.getIdentifierInfo() &&
+          Tokens.back()->Tok.getIdentifierInfo()->getPPKeywordID() ==
+              tok::pp_define) &&
+        std::find(TypenameMacros.begin(), TypenameMacros.end(),
+                  FormatTok->Tok.getIdentifierInfo()) != TypenameMacros.end()) {
+      FormatTok->Type = TT_TypenameMacro;
     } else if (FormatTok->is(tok::identifier)) {
       if (MacroBlockBeginRegex.match(Text)) {
         FormatTok->Type = TT_MacroBlockBegin;
