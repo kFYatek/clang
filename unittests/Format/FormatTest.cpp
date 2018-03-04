@@ -11915,6 +11915,26 @@ TEST_F(FormatTest, StructuredBindings) {
   verifyFormat("auto const &[ a, b ] = f();", Spaces);
 }
 
+TEST_F(FormatTest, TypenameMacros) {
+  std::vector<std::string> TypenameMacros = {"STACK_OF", "LIST"};
+  FormatStyle Macros = getLLVMStyle();
+  Macros.TypenameMacros = TypenameMacros;
+
+  verifyFormat("STACK_OF(int) a;", Macros);
+  verifyFormat("STACK_OF(int) *a;", Macros);
+  verifyFormat("STACK_OF(int const *) *a;", Macros);
+  verifyFormat("STACK_OF(int *const) *a;", Macros);
+  verifyFormat("STACK_OF(int, string) a;", Macros);
+  verifyFormat("STACK_OF(LIST(int)) a;", Macros);
+  verifyFormat("STACK_OF(LIST(int)) a, b;", Macros);
+  verifyFormat("for (LIST(int) *a = NULL; a;) {\n}", Macros);
+  verifyFormat("STACK_OF(int) f(LIST(int) *arg);", Macros);
+
+  Macros.PointerAlignment = FormatStyle::PAS_Left;
+  verifyFormat("STACK_OF(int)* a;", Macros);
+  verifyFormat("STACK_OF(int*)* a;", Macros);
+}
+
 } // end namespace
 } // end namespace format
 } // end namespace clang
