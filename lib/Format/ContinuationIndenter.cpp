@@ -1001,7 +1001,11 @@ unsigned ContinuationIndenter::moveStateToNextToken(LineState &State,
   //     foo();
   //     bar();
   //   }, a, b, c);
-  if (Current.isNot(tok::comment) && Previous &&
+  //
+  // Exceptions added for nested C99 designated initializers.
+  if (!Current.isOneOf(tok::comment, tok::r_brace,
+                       TT_DesignatedInitializerPeriod,
+                       TT_DesignatedInitializerLSquare) && Previous &&
       Previous->isOneOf(tok::l_brace, TT_ArrayInitializerLSquare) &&
       !Previous->is(TT_DictLiteral) && State.Stack.size() > 1) {
     if (State.Stack[State.Stack.size() - 2].NestedBlockInlined && Newline)
