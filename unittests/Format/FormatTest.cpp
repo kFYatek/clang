@@ -1972,6 +1972,43 @@ TEST_F(FormatTest, DesignatedInitializers) {
                "    [5] = eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee};");
 }
 
+TEST_F(FormatTest, BreakDesignatedInitializers) {
+  FormatStyle Style = getLLVMStyle();
+  Style.BreakDesignatedInitializers = true;
+
+  verifyFormat("const struct A a = {\n"
+               "    .a = 1,\n"
+               "    .b = 2\n"
+               "};",
+               Style);
+  verifyFormat("const struct A a = {\n"
+               "    .a = {\n"
+               "        .aa = 1,\n"
+               "        .ab = 2\n"
+               "    },\n"
+               "    .b = 2\n"
+               "};",
+               Style);
+
+  verifyFormat("const int a[] = {\n"
+               "    [0] = 0,\n"
+               "    [1] = 1,\n"
+               "    [3] = 2\n"
+               "};",
+               Style);
+  verifyFormat("const int a[][2] = {\n"
+               "    [0] = {\n"
+               "        [0] = 1,\n"
+               "        [1] = 2\n"
+               "    },\n"
+               "    [2] = {\n"
+               "        [0] = 4,\n"
+               "        [1] = 5\n"
+               "    }\n"
+               "};",
+               Style);
+}
+
 TEST_F(FormatTest, NestedStaticInitializers) {
   verifyFormat("static A x = {{{}}};\n");
   verifyFormat("static A x = {{{init1, init2, init3, init4},\n"
