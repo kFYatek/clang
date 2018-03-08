@@ -936,6 +936,8 @@ struct FormatStyle {
   /// \endcode
   bool Cpp11BracedListStyle;
 
+  bool BreakDesignatedInitializers;
+
   /// \brief If ``true``, analyze the formatted file for the most common
   /// alignment of ``&`` and ``*``.
   /// Pointer and reference alignment styles are going to be updated according
@@ -1653,6 +1655,7 @@ struct FormatStyle {
                R.ConstructorInitializerIndentWidth &&
            ContinuationIndentWidth == R.ContinuationIndentWidth &&
            Cpp11BracedListStyle == R.Cpp11BracedListStyle &&
+           BreakDesignatedInitializers == R.BreakDesignatedInitializers &&
            DerivePointerAlignment == R.DerivePointerAlignment &&
            DisableFormat == R.DisableFormat &&
            ExperimentalAutoDetectBinPacking ==
