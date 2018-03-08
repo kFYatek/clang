@@ -331,8 +331,9 @@ private:
 
     bool StartsObjCMethodExpr =
         !CppArrayTemplates && Style.isCpp() &&
-        Contexts.back().CanBeExpression && Left->isNot(TT_LambdaLSquare) &&
-        CurrentToken->isNot(tok::l_brace) &&
+        Contexts.back().CanBeExpression &&
+        !Contexts.back().IsDesignatedInitializer &&
+        Left->isNot(TT_LambdaLSquare) && CurrentToken->isNot(tok::l_brace) &&
         (!Parent ||
          Parent->isOneOf(tok::colon, tok::l_square, tok::l_paren,
                          tok::kw_return, tok::kw_throw) ||
@@ -354,6 +355,7 @@ private:
       } else if (Style.isCpp() && Contexts.back().ContextKind == tok::l_brace &&
                  Parent && Parent->isOneOf(tok::l_brace, tok::comma)) {
         Left->Type = TT_DesignatedInitializerLSquare;
+        Contexts.back().IsDesignatedInitializer = true;
       } else if (CurrentToken->is(tok::r_square) && Parent &&
                  Parent->is(TT_TemplateCloser)) {
         Left->Type = TT_ArraySubscriptLSquare;
@@ -1011,6 +1013,7 @@ private:
     bool InInheritanceList = false;
     bool CaretFound = false;
     bool IsForEachMacro = false;
+    bool IsDesignatedInitializer = false;
   };
 
   /// \brief Puts a new \c Context onto the stack \c Contexts for the lifetime
@@ -1208,11 +1211,12 @@ private:
     } else if (Current.is(tok::period)) {
       FormatToken *PreviousNoComment = Current.getPreviousNonComment();
       if (PreviousNoComment &&
-          PreviousNoComment->isOneOf(tok::comma, tok::l_brace))
+          PreviousNoComment->isOneOf(tok::comma, tok::l_brace)) {
         Current.Type = TT_DesignatedInitializerPeriod;
-      else if (Style.Language == FormatStyle::LK_Java && Current.Previous &&
-               Current.Previous->isOneOf(TT_JavaAnnotation,
-                                         TT_LeadingJavaAnnotation)) {
+        Contexts.back().IsDesignatedInitializer = true;
+      } else if (Style.Language == FormatStyle::LK_Java && Current.Previous &&
+                 Current.Previous->isOneOf(TT_JavaAnnotation,
+                                           TT_LeadingJavaAnnotation)) {
         Current.Type = Current.Previous->Type;
       }
     } else if (Current.isOneOf(tok::identifier, tok::kw_const) &&
