@@ -1982,6 +1982,21 @@ TEST_F(FormatTest, BreakDesignatedInitializers) {
                "};",
                Style);
   verifyFormat("const struct A a = {\n"
+               "    .a = 1,\n"
+               "    .b = 2,\n"
+               "};",
+               Style);
+  verifyFormat("const struct A a = {\n"
+               "    .a = {},\n"
+               "    .b = {},\n"
+               "};",
+               Style);
+  verifyFormat("const struct A a = {\n"
+               "    .a = {},\n"
+               "    .b = {}\n"
+               "};",
+               Style);
+  verifyFormat("const struct A a = {\n"
                "    .a = {\n"
                "        .aa = 1,\n"
                "        .ab = 2\n"
@@ -1989,7 +2004,21 @@ TEST_F(FormatTest, BreakDesignatedInitializers) {
                "    .b = 2\n"
                "};",
                Style);
+  verifyFormat("const struct A a = {\n"
+               "    .a = {\n"
+               "        .aa = 1,\n"
+               "        .ab = 2,\n"
+               "    },\n"
+               "    .b = 2,\n"
+               "};",
+               Style);
 
+  verifyFormat("const int a[] = {\n"
+               "    [0] = 0,\n"
+               "    [1] = 1,\n"
+               "    [3] = 2,\n"
+               "};",
+               Style);
   verifyFormat("const int a[] = {\n"
                "    [0] = 0,\n"
                "    [1] = 1,\n"
@@ -2005,6 +2034,17 @@ TEST_F(FormatTest, BreakDesignatedInitializers) {
                "        [0] = 4,\n"
                "        [1] = 5\n"
                "    }\n"
+               "};",
+               Style);
+  verifyFormat("const int a[][2] = {\n"
+               "    [0] = {\n"
+               "        [0] = 1,\n"
+               "        [1] = 2,\n"
+               "    },\n"
+               "    [2] = {\n"
+               "        [0] = 4,\n"
+               "        [1] = 5,\n"
+               "    },\n"
                "};",
                Style);
 }
