@@ -2873,6 +2873,12 @@ bool TokenAnnotator::canBreakBefore(const AnnotatedLine &Line,
     return true;
   if (Right.is(tok::kw_typename) && Left.isNot(tok::kw_const))
     return true;
+  if (Left.is(tok::equal) && Right.is(tok::l_brace) &&
+      (Right.Next && Right.Next->isOneOf(TT_DesignatedInitializerPeriod,
+                                         TT_DesignatedInitializerLSquare)))
+    return Style.BreakBeforeBraces ==
+               FormatStyle::BraceBreakingStyle::BS_Allman ||
+           Style.BreakBeforeBraces == FormatStyle::BraceBreakingStyle::BS_GNU;
   if ((Left.isBinaryOperator() || Left.is(TT_BinaryOperator)) &&
       !Left.isOneOf(tok::arrowstar, tok::lessless) &&
       Style.BreakBeforeBinaryOperators != FormatStyle::BOS_All &&
