@@ -2656,6 +2656,14 @@ bool TokenAnnotator::mustBreakBefore(const AnnotatedLine &Line,
       Style.BreakConstructorInitializers == FormatStyle::BCIS_BeforeComma &&
       !Style.ConstructorInitializerAllOnOneLineOrOnePerLine)
     return true;
+  if ((Right.isOneOf(TT_DesignatedInitializerPeriod,
+                     TT_DesignatedInitializerLSquare) ||
+       (Right.is(tok::r_brace) && Right.MatchingParen &&
+        Right.MatchingParen->Next &&
+        Right.MatchingParen->Next->isOneOf(TT_DesignatedInitializerPeriod,
+                                           TT_DesignatedInitializerLSquare))) &&
+      Style.BreakDesignatedInitializers)
+    return true;
   // Break only if we have multiple inheritance.
   if (Style.BreakBeforeInheritanceComma && Right.is(TT_InheritanceComma))
     return true;
