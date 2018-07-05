@@ -2090,6 +2090,35 @@ TEST_F(FormatTest, BreakDesignatedInitializers) {
                Style);
 }
 
+TEST_F(FormatTest, AvoidMisleadingControlStatementContinuationIndent) {
+  FormatStyle Style = getLLVMStyle();
+  Style.IndentWidth = 4;
+
+  verifyFormat("if (aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa &&\n"
+               "        bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb) {\n"
+               "    foo;\n"
+               "}", Style);
+  verifyFormat("if (aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa &&\n"
+               "        bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb &&\n"
+               "        ccccccccccccccccccccccccccccccccccccccc) {\n"
+               "    foo;\n"
+               "}", Style);
+
+  Style.SpaceBeforeParens = FormatStyle::SBPO_Never;
+
+  verifyFormat("for(int aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa;\n"
+               "        bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb;\n"
+               "        cccccccccccccccccccccccccccccccccccccccc) {\n"
+               "    foo;\n"
+               "}", Style);
+
+  Style.IndentWidth = 6;
+  verifyFormat("while(aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa &&\n"
+               "            bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb) {\n"
+               "      foo;\n"
+               "}", Style);
+}
+
 TEST_F(FormatTest, NestedStaticInitializers) {
   verifyFormat("static A x = {{{}}};\n");
   verifyFormat("static A x = {{{init1, init2, init3, init4},\n"
