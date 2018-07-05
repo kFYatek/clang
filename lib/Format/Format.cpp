@@ -357,6 +357,8 @@ template <> struct MappingTraits<FormatStyle> {
     IO.mapOptional("Cpp11BracedListStyle", Style.Cpp11BracedListStyle);
     IO.mapOptional("BreakDesignatedInitializers",
                    Style.BreakDesignatedInitializers);
+    IO.mapOptional("DesignatedInitializerContinuationIndentWidth",
+                   Style.DesignatedInitializerContinuationIndentWidth);
     IO.mapOptional("DerivePointerAlignment", Style.DerivePointerAlignment);
     IO.mapOptional("DisableFormat", Style.DisableFormat);
     IO.mapOptional("ExperimentalAutoDetectBinPacking",
@@ -610,6 +612,7 @@ FormatStyle getLLVMStyle() {
   LLVMStyle.BreakBeforeInheritanceComma = false;
   LLVMStyle.BreakStringLiterals = true;
   LLVMStyle.BreakDesignatedInitializers = false;
+  LLVMStyle.DesignatedInitializerContinuationIndentWidth = 4;
   LLVMStyle.ColumnLimit = 80;
   LLVMStyle.CommentPragmas = "^ IWYU pragma:";
   LLVMStyle.CompactNamespaces = false;
