@@ -1976,6 +1976,10 @@ TEST_F(FormatTest, BreakDesignatedInitializers) {
   FormatStyle Style = getLLVMStyle();
   Style.BreakDesignatedInitializers = true;
 
+  // make sure we use DesignatedInitializerContinuationIndentWidth
+  Style.ContinuationIndentWidth = 6;
+  Style.DesignatedInitializerContinuationIndentWidth = 4;
+
   verifyFormat("const struct A a = {\n"
                "    .a = 1,\n"
                "    .b = 2\n"
