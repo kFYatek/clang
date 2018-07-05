@@ -601,6 +601,31 @@ void ContinuationIndenter::addTokenOnCurrentLine(LineState &State, bool DryRun,
         State.Stack[State.Stack.size() - 2].CallContinuation == 0)
       State.Stack.back().LastSpace = State.Column;
   }
+
+  if (Current.is(tok::l_paren)
+          && Previous.isOneOf(tok::kw_if, tok::kw_for, tok::kw_while)) {
+      // if an if/for/while expression continuation would visually match the
+      // next indentation level, add an extra indent:
+      //
+      //     if (foo &&
+      //             bar) { // <--
+      //         baz;
+      //     }
+      unsigned ExpressionContinuationColumn =
+          Previous.TokenText.size() + Current.TokenText.size();
+      switch (Style.SpaceBeforeParens) {
+      case FormatStyle::SBPO_Never:
+          break;
+      case FormatStyle::SBPO_ControlStatements:
+      case FormatStyle::SBPO_Always:
+          ExpressionContinuationColumn += 1;
+          break;
+      }
+
+      if (Style.IndentWidth == ExpressionContinuationColumn) {
+        State.Column += Style.IndentWidth;
+      }
+  }
 }
 
 unsigned ContinuationIndenter::addTokenOnNewLine(LineState &State,
