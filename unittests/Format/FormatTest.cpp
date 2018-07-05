@@ -2104,6 +2104,12 @@ TEST_F(FormatTest, AvoidMisleadingControlStatementContinuationIndent) {
                "    foo;\n"
                "}", Style);
 
+  verifyFormat("if (foobar(aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa &&\n"
+               "           bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb &&\n"
+               "           ccccccccccccccccccccccccccccccccccccccc)) {\n"
+               "    foo;\n"
+               "}", Style);
+
   Style.SpaceBeforeParens = FormatStyle::SBPO_Never;
 
   verifyFormat("for(int aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa;\n"
