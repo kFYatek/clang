@@ -1157,6 +1157,11 @@ void ContinuationIndenter::moveStatePastScopeOpener(LineState &State,
     if (Current.opensBlockOrBlockTypeList(Style)) {
       NewIndent = Style.IndentWidth +
                   std::min(State.Column, State.Stack.back().NestedBlockIndent);
+    } else if (Current.Next &&
+            Current.Next->isOneOf(TT_DesignatedInitializerPeriod,
+                                  TT_DesignatedInitializerLSquare)) {
+      NewIndent = State.Stack.back().LastSpace +
+          Style.DesignatedInitializerContinuationIndentWidth;
     } else {
       NewIndent = State.Stack.back().LastSpace + Style.ContinuationIndentWidth;
     }
