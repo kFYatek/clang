@@ -601,31 +601,6 @@ void ContinuationIndenter::addTokenOnCurrentLine(LineState &State, bool DryRun,
         State.Stack[State.Stack.size() - 2].CallContinuation == 0)
       State.Stack.back().LastSpace = State.Column;
   }
-
-  if (Current.is(tok::l_paren)
-          && Previous.isOneOf(tok::kw_if, tok::kw_for, tok::kw_while)) {
-      // if an if/for/while expression continuation would visually match the
-      // next indentation level, add an extra indent:
-      //
-      //     if (foo &&
-      //             bar) { // <--
-      //         baz;
-      //     }
-      unsigned ExpressionContinuationColumn =
-          Previous.TokenText.size() + Current.TokenText.size();
-      switch (Style.SpaceBeforeParens) {
-      case FormatStyle::SBPO_Never:
-          break;
-      case FormatStyle::SBPO_ControlStatements:
-      case FormatStyle::SBPO_Always:
-          ExpressionContinuationColumn += 1;
-          break;
-      }
-
-      if (Style.IndentWidth == ExpressionContinuationColumn) {
-        State.Column += Style.IndentWidth;
-      }
-  }
 }
 
 unsigned ContinuationIndenter::addTokenOnNewLine(LineState &State,
@@ -658,6 +633,7 @@ unsigned ContinuationIndenter::addTokenOnNewLine(LineState &State,
        State.Stack.back().BreakBeforeParameter))
     Penalty += Style.PenaltyBreakFirstLessLess;
 
+  State.StartOfLineStackSize = State.Stack.size();
   State.Column = getNewLineColumn(State);
 
   // Indent nested blocks relative to this column, unless in a very specific
@@ -934,7 +910,8 @@ unsigned ContinuationIndenter::getNewLineColumn(const LineState &State) {
     // Ensure that we fall back to the continuation indent width instead of
     // just flushing continuations left.
     return State.Stack.back().Indent + Style.ContinuationIndentWidth;
-  return State.Stack.back().Indent;
+
+  return State.Stack.back().Indent + State.Stack.back().KeywordNestedBlockIndent;
 }
 
 unsigned ContinuationIndenter::moveStateToNextToken(LineState &State,
@@ -1011,9 +988,10 @@ unsigned ContinuationIndenter::moveStateToNextToken(LineState &State,
   if (Current.is(TT_InheritanceColon))
     State.Stack.back().Indent =
         State.FirstIndent + Style.ContinuationIndentWidth;
-  if (Current.isOneOf(TT_BinaryOperator, TT_ConditionalExpr) && Newline)
+  if (Current.isOneOf(TT_BinaryOperator, TT_ConditionalExpr) && Newline) {
     State.Stack.back().NestedBlockIndent =
         State.Column + Current.ColumnWidth + 1;
+  }
   if (Current.isOneOf(TT_LambdaLSquare, TT_LambdaArrow))
     State.Stack.back().LastSpace = State.Column;
 
@@ -1177,6 +1155,8 @@ void ContinuationIndenter::moveStatePastScopeOpener(LineState &State,
   bool BreakBeforeParameter = false;
   unsigned NestedBlockIndent = std::max(State.Stack.back().StartOfFunctionCall,
                                         State.Stack.back().NestedBlockIndent);
+  unsigned KeywordNestedBlockIndent = 0;
+
   if (Current.isOneOf(tok::l_brace, TT_ArrayInitializerLSquare) ||
       opensProtoMessageField(Current, Style)) {
     const FormatToken *NextNoCommentOrLBrace = Current.getNextNonComment();
@@ -1260,6 +1240,38 @@ void ContinuationIndenter::moveStatePastScopeOpener(LineState &State,
     if (Style.Language == FormatStyle::LK_JavaScript && EndsInComma)
       BreakBeforeParameter = true;
   }
+
+  // if an if/for/while expression continuation would visually match the
+  // next indentation level, add an extra indent:
+  //
+  //     if (foo &&
+  //             bar) { // <--
+  //         baz;
+  //     }
+  if (State.Line->First &&
+          State.Line->First->Next &&
+          State.StartOfLineStackSize == State.Stack.size() - 1) {
+    const FormatToken &Keyword = *State.Line->First;
+    const FormatToken &Paren = *Keyword.Next;
+
+    if (Keyword.isOneOf(tok::kw_if, tok::kw_for, tok::kw_while)) {
+      unsigned ExpressionContinuationColumn =
+          Keyword.TokenText.size() + Paren.TokenText.size();
+      switch (Style.SpaceBeforeParens) {
+        case FormatStyle::SBPO_Never:
+          break;
+        case FormatStyle::SBPO_ControlStatements:
+        case FormatStyle::SBPO_Always:
+          ExpressionContinuationColumn += 1;
+          break;
+      }
+
+      if (Style.IndentWidth == ExpressionContinuationColumn) {
+        KeywordNestedBlockIndent = Style.IndentWidth;
+      }
+    }
+  }
+
   // Generally inherit NoLineBreak from the current scope to nested scope.
   // However, don't do this for non-empty nested blocks, dict literals and
   // array literals as these follow different indentation rules.
@@ -1273,6 +1285,7 @@ void ContinuationIndenter::moveStatePastScopeOpener(LineState &State,
   State.Stack.push_back(
       ParenState(NewIndent, LastSpace, AvoidBinPacking, NoLineBreak));
   State.Stack.back().NestedBlockIndent = NestedBlockIndent;
+  State.Stack.back().KeywordNestedBlockIndent = KeywordNestedBlockIndent;
   State.Stack.back().BreakBeforeParameter = BreakBeforeParameter;
   State.Stack.back().HasMultipleNestedBlocks = Current.BlockParameterCount > 1;
 }

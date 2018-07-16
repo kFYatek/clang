@@ -220,6 +220,7 @@ struct ParenState {
   /// \brief If a block relative to this parenthesis level gets wrapped, indent
   /// it this much.
   unsigned NestedBlockIndent;
+  unsigned KeywordNestedBlockIndent = 0;
 
   /// \brief The position the first "<<" operator encountered on each level.
   ///
@@ -364,6 +365,8 @@ struct LineState {
 
   /// \brief The token that needs to be next formatted.
   FormatToken *NextToken;
+
+  unsigned StartOfLineStackSize = 0;
 
   /// \brief \c true if this line contains a continued for-loop section.
   bool LineContainsContinuedForLoopSection;
