@@ -370,8 +370,6 @@ struct LineState {
   /// \brief The token that needs to be next formatted.
   FormatToken *NextToken;
 
-  unsigned StartOfLineStackSize = 0;
-
   /// \brief \c true if this line contains a continued for-loop section.
   bool LineContainsContinuedForLoopSection;
 

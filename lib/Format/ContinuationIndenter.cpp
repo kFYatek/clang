@@ -633,7 +633,6 @@ unsigned ContinuationIndenter::addTokenOnNewLine(LineState &State,
        State.Stack.back().BreakBeforeParameter))
     Penalty += Style.PenaltyBreakFirstLessLess;
 
-  State.StartOfLineStackSize = State.Stack.size();
   State.Column = getNewLineColumn(State);
 
   // Indent nested blocks relative to this column, unless in a very specific
