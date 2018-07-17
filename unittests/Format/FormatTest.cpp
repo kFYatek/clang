@@ -2125,6 +2125,17 @@ TEST_F(FormatTest, AvoidMisleadingControlStatementContinuationIndent) {
                "}", Style);
 }
 
+TEST_F(FormatTest, NoDemisleadingIndentForNonParenScopeOpeners) {
+  FormatStyle Style = getLLVMStyle();
+  Style.IndentWidth = 4;
+
+  verifyFormat("if (aaaaaaaaaaaaaaaaaaaaa ||\n"
+               "        !bbbbbbbbbbbbbbbbbbbbbb(ccccccccccccccccccccccccccc,\n"
+               "                                ddddddddddddddddddddddddddd)) {\n"
+               "    eee;\n"
+               "}", Style);
+}
+
 TEST_F(FormatTest, NestedStaticInitializers) {
   verifyFormat("static A x = {{{}}};\n");
   verifyFormat("static A x = {{{init1, init2, init3, init4},\n"
