@@ -1248,9 +1248,8 @@ void ContinuationIndenter::moveStatePastScopeOpener(LineState &State,
   //             bar) { // <--
   //         baz;
   //     }
-  if (State.Line->First &&
-          State.Line->First->Next &&
-          State.StartOfLineStackSize == State.Stack.size() - 1) {
+  if (Current.Previous &&
+          Current.Previous->isOneOf(tok::kw_if, tok::kw_for, tok::kw_while)) {
     const FormatToken &Keyword = *State.Line->First;
     const FormatToken &Paren = *Keyword.Next;
 
