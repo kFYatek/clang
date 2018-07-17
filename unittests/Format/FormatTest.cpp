@@ -2093,6 +2093,7 @@ TEST_F(FormatTest, BreakDesignatedInitializers) {
 TEST_F(FormatTest, AvoidMisleadingControlStatementContinuationIndent) {
   FormatStyle Style = getLLVMStyle();
   Style.IndentWidth = 4;
+  Style.AvoidMisleadingControlStatementContinuationIndent = true;
 
   verifyFormat("if (aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa &&\n"
                "        bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb) {\n"
@@ -2128,6 +2129,7 @@ TEST_F(FormatTest, AvoidMisleadingControlStatementContinuationIndent) {
 TEST_F(FormatTest, NoDemisleadingIndentForNonParenScopeOpeners) {
   FormatStyle Style = getLLVMStyle();
   Style.IndentWidth = 4;
+  Style.AvoidMisleadingControlStatementContinuationIndent = true;
 
   verifyFormat("if (aaaaaaaaaaaaaaaaaaaaa ||\n"
                "        !bbbbbbbbbbbbbbbbbbbbbb(ccccccccccccccccccccccccccc,\n"
