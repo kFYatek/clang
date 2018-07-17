@@ -12101,6 +12101,19 @@ TEST_F(FormatTest, TypenameMacros) {
   verifyFormat("STACK_OF(int*)* a;", Macros);
 }
 
+TEST_F(FormatTest, DecltypeOrTypenameMacroDeclarationContinuation) {
+  std::vector<std::string> TypenameMacros = {"STACK_OF"};
+  FormatStyle Style = getLLVMStyle();
+  Style.TypenameMacros = TypenameMacros;
+
+  verifyFormat("decltype(b) a =\n"
+               "    aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa;",
+               Style);
+  verifyFormat("STACK_OF(int) a =\n"
+               "    aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa;",
+               Style);
+}
+
 } // end namespace
 } // end namespace format
 } // end namespace clang
