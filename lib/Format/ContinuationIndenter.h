@@ -220,6 +220,10 @@ struct ParenState {
   /// \brief If a block relative to this parenthesis level gets wrapped, indent
   /// it this much.
   unsigned NestedBlockIndent;
+
+  /// \brief Extra indent applied within the outermost level of if/for/while
+  /// parentheses. Used in case continued condition indent would visually match
+  /// following block contents.
   unsigned KeywordNestedBlockIndent = 0;
 
   /// \brief The position the first "<<" operator encountered on each level.
