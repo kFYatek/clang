@@ -358,6 +358,18 @@ struct FormatStyle {
   /// \endcode
   bool AlwaysBreakTemplateDeclarations;
 
+  /// \brief If true, an additional indent level is applied for control
+  /// statement expressions if the continuation would visually match the
+  /// next indentation level:
+  /// \code
+  ///   true:                                   false:
+  ///   if (foo &&                              if (foo &&
+  ///           bar) {                  vs.         bar) {
+  ///       baz;                                    baz;
+  ///   }                                       }
+  /// \endcode
+  bool AvoidMisleadingControlStatementContinuationIndent;
+
   /// \brief If ``false``, a function call's arguments will either be all on the
   /// same line or will have one line each.
   /// \code
@@ -1639,6 +1651,8 @@ struct FormatStyle {
                R.AlwaysBreakBeforeMultilineStrings &&
            AlwaysBreakTemplateDeclarations ==
                R.AlwaysBreakTemplateDeclarations &&
+           AvoidMisleadingControlStatementContinuationIndent ==
+               R.AvoidMisleadingControlStatementContinuationIndent &&
            BinPackArguments == R.BinPackArguments &&
            BinPackParameters == R.BinPackParameters &&
            BreakBeforeBinaryOperators == R.BreakBeforeBinaryOperators &&
