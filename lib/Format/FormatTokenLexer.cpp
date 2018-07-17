@@ -672,7 +672,8 @@ FormatToken *FormatTokenLexer::getNextToken() {
               tok::pp_define) &&
         std::find(TypenameMacros.begin(), TypenameMacros.end(),
                   FormatTok->Tok.getIdentifierInfo()) != TypenameMacros.end()) {
-      FormatTok->Type = TT_TypenameMacro;
+      // HACK: typename macros are syntactically very similar to decltype
+      FormatTok->Tok.setKind(tok::kw_decltype);
     } else if (FormatTok->is(tok::identifier)) {
       if (MacroBlockBeginRegex.match(Text)) {
         FormatTok->Type = TT_MacroBlockBegin;
