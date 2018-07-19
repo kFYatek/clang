@@ -2051,6 +2051,31 @@ TEST_F(FormatTest, BreakDesignatedInitializers) {
                "    },\n"
                "};",
                Style);
+
+  verifyFormat("const struct A a = {\n"
+               "    // comment\n"
+               "    .a = 1,\n"
+               "    .b = {\n"
+               "        // comment2\n"
+               "        .c = 2\n"
+               "    }\n"
+               "};",
+               Style);
+  verifyFormat("const int a[][2] = {\n"
+               "    // comment\n"
+               "    [0] = {\n"
+               "        // comment2\n"
+               "        [0] = 1,\n"
+               "        [1] = 2,\n"
+               "    },\n"
+               "    // comment3\n"
+               "    [2] = {\n"
+               "        // comment4\n"
+               "        [0] = 4,\n"
+               "        [1] = 5,\n"
+               "    },\n"
+               "};",
+               Style);
 }
 
 TEST_F(FormatTest, NestedStaticInitializers) {
