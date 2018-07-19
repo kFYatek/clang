@@ -2635,6 +2635,32 @@ bool TokenAnnotator::mustBreakBefore(const AnnotatedLine &Line,
       return true;
   }
 
+  if (Style.BreakDesignatedInitializers) {
+    // type var = {     // <-- here
+    //     ...
+    // };
+    const FormatToken *NextNoComment = Left.getNextNonComment();
+    if (NextNoComment &&
+        NextNoComment->isOneOf(TT_DesignatedInitializerPeriod,
+                               TT_DesignatedInitializerLSquare)) {
+      return true;
+    }
+
+    // type var = {
+    //     .a = {
+    //        ...
+    //     }            // <-- here
+    // };
+    const FormatToken *OpeningBraceNextNoComment =
+        Right.is(tok::r_brace) && Right.MatchingParen ?
+          Right.MatchingParen->getNextNonComment() : NULL;
+    if (OpeningBraceNextNoComment &&
+          OpeningBraceNextNoComment->isOneOf(TT_DesignatedInitializerPeriod,
+                                             TT_DesignatedInitializerLSquare)) {
+      return true;
+    }
+  }
+
   if (Right.is(tok::comment))
     return Left.BlockKind != BK_BracedInit &&
            Left.isNot(TT_CtorInitializerColon) &&
@@ -2659,14 +2685,6 @@ bool TokenAnnotator::mustBreakBefore(const AnnotatedLine &Line,
   if (Right.is(TT_CtorInitializerColon) &&
       Style.BreakConstructorInitializers == FormatStyle::BCIS_BeforeComma &&
       !Style.ConstructorInitializerAllOnOneLineOrOnePerLine)
-    return true;
-  if ((Right.isOneOf(TT_DesignatedInitializerPeriod,
-                     TT_DesignatedInitializerLSquare) ||
-       (Right.is(tok::r_brace) && Right.MatchingParen &&
-        Right.MatchingParen->Next &&
-        Right.MatchingParen->Next->isOneOf(TT_DesignatedInitializerPeriod,
-                                           TT_DesignatedInitializerLSquare))) &&
-      Style.BreakDesignatedInitializers)
     return true;
   // Break only if we have multiple inheritance.
   if (Style.BreakBeforeInheritanceComma && Right.is(TT_InheritanceComma))

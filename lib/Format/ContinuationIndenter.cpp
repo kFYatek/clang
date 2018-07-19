@@ -1154,18 +1154,20 @@ void ContinuationIndenter::moveStatePastScopeOpener(LineState &State,
                                         State.Stack.back().NestedBlockIndent);
   if (Current.isOneOf(tok::l_brace, TT_ArrayInitializerLSquare) ||
       opensProtoMessageField(Current, Style)) {
+    const FormatToken *NextNoComment = Current.getNextNonComment();
+    bool IsDesignatedInitializer = NextNoComment &&
+        NextNoComment->isOneOf(TT_DesignatedInitializerPeriod,
+                               TT_DesignatedInitializerLSquare);
+
     if (Current.opensBlockOrBlockTypeList(Style)) {
       NewIndent = Style.IndentWidth +
                   std::min(State.Column, State.Stack.back().NestedBlockIndent);
-    } else if (Current.Next &&
-            Current.Next->isOneOf(TT_DesignatedInitializerPeriod,
-                                  TT_DesignatedInitializerLSquare)) {
+    } else if (IsDesignatedInitializer) {
       NewIndent = State.Stack.back().LastSpace +
           Style.DesignatedInitializerContinuationIndentWidth;
     } else {
       NewIndent = State.Stack.back().LastSpace + Style.ContinuationIndentWidth;
     }
-    const FormatToken *NextNoComment = Current.getNextNonComment();
     bool EndsInComma = Current.MatchingParen &&
                        Current.MatchingParen->Previous &&
                        Current.MatchingParen->Previous->is(tok::comma);
@@ -1173,9 +1175,7 @@ void ContinuationIndenter::moveStatePastScopeOpener(LineState &State,
                       Style.Language == FormatStyle::LK_Proto ||
                       Style.Language == FormatStyle::LK_TextProto ||
                       !Style.BinPackArguments ||
-                      (NextNoComment &&
-                       NextNoComment->isOneOf(TT_DesignatedInitializerPeriod,
-                                              TT_DesignatedInitializerLSquare));
+                      IsDesignatedInitializer;
     BreakBeforeParameter = EndsInComma;
     if (Current.ParameterCount > 1)
       NestedBlockIndent = std::max(NestedBlockIndent, State.Column + 1);
