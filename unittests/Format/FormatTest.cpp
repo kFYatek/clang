@@ -2076,6 +2076,18 @@ TEST_F(FormatTest, BreakDesignatedInitializers) {
                "    },\n"
                "};",
                Style);
+
+  verifyFormat("const struct A a[] = {\n"
+               "    {\n"
+               "        .a = 1,\n"
+               "        .b = 2\n"
+               "    },\n"
+               "    {\n"
+               "        .a = 3,\n"
+               "        .b = 4\n"
+               "    }\n"
+               "};",
+               Style);
 }
 
 TEST_F(FormatTest, NestedStaticInitializers) {
