@@ -2636,10 +2636,28 @@ bool TokenAnnotator::mustBreakBefore(const AnnotatedLine &Line,
   }
 
   if (Style.BreakDesignatedInitializers) {
-    // type var = {     // <-- here
+    const FormatToken *PrevNoComment = Right.getPreviousNonComment();
+    const FormatToken *NextNoComment = Left.getNextNonComment();
+
+    // type var = {     // <-- between = and {
     //     ...
     // };
-    const FormatToken *NextNoComment = Left.getNextNonComment();
+    if (PrevNoComment && PrevNoComment->is(tok::equal) &&
+            NextNoComment && NextNoComment->is(tok::l_brace)) {
+        return false;
+    }
+
+    // skip any following opening braces, e.g.
+    // type var[] = {
+    //     {
+    //         ... // <- NextNoComment
+    //     }
+    // };
+    while (NextNoComment && NextNoComment->is(tok::l_brace)) {
+        NextNoComment = NextNoComment->getNextNonComment();
+    }
+
+    // { within a designated initializer, but not between = and {
     if (NextNoComment &&
         NextNoComment->isOneOf(TT_DesignatedInitializerPeriod,
                                TT_DesignatedInitializerLSquare)) {
@@ -2654,6 +2672,13 @@ bool TokenAnnotator::mustBreakBefore(const AnnotatedLine &Line,
     const FormatToken *OpeningBraceNextNoComment =
         Right.is(tok::r_brace) && Right.MatchingParen ?
           Right.MatchingParen->getNextNonComment() : NULL;
+
+    while (OpeningBraceNextNoComment &&
+           OpeningBraceNextNoComment->is(tok::l_brace)) {
+        OpeningBraceNextNoComment =
+            OpeningBraceNextNoComment->getNextNonComment();
+    }
+
     if (OpeningBraceNextNoComment &&
           OpeningBraceNextNoComment->isOneOf(TT_DesignatedInitializerPeriod,
                                              TT_DesignatedInitializerLSquare)) {
