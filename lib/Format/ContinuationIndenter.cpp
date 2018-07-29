@@ -1154,10 +1154,13 @@ void ContinuationIndenter::moveStatePastScopeOpener(LineState &State,
                                         State.Stack.back().NestedBlockIndent);
   if (Current.isOneOf(tok::l_brace, TT_ArrayInitializerLSquare) ||
       opensProtoMessageField(Current, Style)) {
-    const FormatToken *NextNoComment = Current.getNextNonComment();
-    bool IsDesignatedInitializer = NextNoComment &&
-        NextNoComment->isOneOf(TT_DesignatedInitializerPeriod,
-                               TT_DesignatedInitializerLSquare);
+    const FormatToken *NextNoCommentOrLBrace = Current.getNextNonComment();
+    while (NextNoCommentOrLBrace && NextNoCommentOrLBrace->is(tok::l_brace)) {
+        NextNoCommentOrLBrace = NextNoCommentOrLBrace->getNextNonComment();
+    }
+    bool IsDesignatedInitializer = NextNoCommentOrLBrace &&
+        NextNoCommentOrLBrace->isOneOf(TT_DesignatedInitializerPeriod,
+                                       TT_DesignatedInitializerLSquare);
 
     if (Current.opensBlockOrBlockTypeList(Style)) {
       NewIndent = Style.IndentWidth +
