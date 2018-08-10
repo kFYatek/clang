@@ -12145,6 +12145,8 @@ TEST_F(FormatTest, ExpressionInCaseLabel) {
                  "  break;\n"
                  "case FOO || BAR:\n"
                  "  break;\n"
+                 "}");
+    verifyFormat("switch (foo) {\n"
                  "case 1 + 2:\n"
                  "  break;\n"
                  "case 1 * 2:\n"
@@ -12154,6 +12156,14 @@ TEST_F(FormatTest, ExpressionInCaseLabel) {
                  "case 1 && 2:\n"
                  "  break;\n"
                  "case 1 || 2:\n"
+                 "  break;\n"
+                 "}");
+    verifyFormat("switch (foo) {\n"
+                 "case (1 * 2):\n"
+                 "  break;\n"
+                 "case (FOO * BAR):\n"
+                 "  break;\n"
+                 "case (((1 * 2))):\n"
                  "  break;\n"
                  "}");
 }
