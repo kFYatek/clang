@@ -12133,6 +12133,31 @@ TEST_F(FormatTest, NoBreakBeforeCompoundInitializerBrace) {
                "};", Style);
 }
 
+TEST_F(FormatTest, ExpressionInCaseLabel) {
+    verifyFormat("switch (foo) {\n"
+                 "case FOO + BAR:\n"
+                 "  break;\n"
+                 "case FOO * BAR:\n"
+                 "  break;\n"
+                 "case FOO & BAR:\n"
+                 "  break;\n"
+                 "case FOO && BAR:\n"
+                 "  break;\n"
+                 "case FOO || BAR:\n"
+                 "  break;\n"
+                 "case 1 + 2:\n"
+                 "  break;\n"
+                 "case 1 * 2:\n"
+                 "  break;\n"
+                 "case 1 & 2:\n"
+                 "  break;\n"
+                 "case 1 && 2:\n"
+                 "  break;\n"
+                 "case 1 || 2:\n"
+                 "  break;\n"
+                 "}");
+}
+
 } // end namespace
 } // end namespace format
 } // end namespace clang
