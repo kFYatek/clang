@@ -12123,6 +12123,11 @@ TEST_F(FormatTest, NoBreakBeforeCompoundInitializerBrace) {
                "    .foo = foo,\n"
                "    .bar = bar\n"
                "};", Style);
+
+  verifyFormat("if (foo)\n"
+               "// comment\n"
+               "{\n"
+               "}", Style);
 }
 
 } // end namespace
