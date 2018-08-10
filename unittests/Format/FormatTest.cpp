@@ -12207,6 +12207,7 @@ TEST_F(FormatTest, ExpressionInCaseLabel) {
 TEST_F(FormatTest, ConsecutiveCStyleCasts) {
   FormatStyle Style = getLLVMStyle();
 
+  verifyFormat("auto x = (struct foo *)(intptr_t)*a;", Style);
   verifyFormat("auto x = (type_t)(intptr_t)*a;", Style);
   verifyFormat("auto x = (void *)(intptr_t)&a;", Style);
   verifyFormat("auto x = (void *)(intptr_t)(a + 1);", Style);
