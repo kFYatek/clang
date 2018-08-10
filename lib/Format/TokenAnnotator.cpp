@@ -2633,21 +2633,21 @@ bool TokenAnnotator::mustBreakBefore(const AnnotatedLine &Line,
   }
 
   if (Style.BreakDesignatedInitializers) {
-    const FormatToken *PrevNoComment = Right.getPreviousNonComment();
     const FormatToken *NextNoComment = Left.getNextNonComment();
 
     // type var = {     // <-- between = and {
     //     ...
     // };
-    //
-    // or
-    //
-    // (type) {        // <-- between ) and {
+    if (Left.is(tok::equal) &&
+            NextNoComment && NextNoComment->is(tok::l_brace)) {
+        return false;
+    }
+
+    // (type){ // <-- between ) and {
     //     ...
     // };
-    if (PrevNoComment && PrevNoComment->isOneOf(tok::equal,
-                                                tok::r_paren) &&
-            NextNoComment && NextNoComment->is(tok::l_brace)) {
+    if (Left.is(tok::r_paren) && Left.MatchingParen &&
+            Left.MatchingParen->startsC99CompoundInitializer()) {
         return false;
     }
 

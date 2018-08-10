@@ -506,6 +506,25 @@ struct FormatToken {
                                                                : nullptr;
   }
 
+  // \brief Returns true if the token is a left paren that starts a compound
+  // initializer, i.e. (typename){ ... }
+  bool startsC99CompoundInitializer() const {
+    if (is(tok::l_paren) && Next && MatchingParen && MatchingParen->Next &&
+        MatchingParen->Next->is(tok::l_brace) &&
+        MatchingParen->Next->BlockKind == BK_BracedInit) {
+      if (MatchingParen && Next == MatchingParen->Previous &&
+          Next->is(tok::identifier)) {
+        // a single typename between parentheses
+        return true;
+      }
+      if (Next->is(tok::kw_decltype)) {
+        // decltype() or a decltype-like expression (see TypenameMacros)
+        return true;
+      }
+    }
+    return false;
+  }
+
 private:
   // Disallow copying.
   FormatToken(const FormatToken &) = delete;
