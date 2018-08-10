@@ -12101,6 +12101,42 @@ TEST_F(FormatTest, TypenameMacros) {
   verifyFormat("STACK_OF(int*)* a;", Macros);
 }
 
+TEST_F(FormatTest, DecltypeOrTypenameMacroCStyleCastOfUnaryOperatorExpression) {
+  std::vector<std::string> TypenameMacros = {"STACK_OF", "LIST"};
+  FormatStyle Macros = getLLVMStyle();
+  Macros.TypenameMacros = TypenameMacros;
+
+  verifyFormat("auto a = (decltype(c))*b;", Macros);
+  verifyFormat("auto a = (decltype(c))***b;", Macros);
+  verifyFormat("auto a = (decltype(c))(*b);", Macros);
+  verifyFormat("auto a = (decltype(c))*(b);", Macros);
+  verifyFormat("auto a = (decltype(c))&b;", Macros);
+  verifyFormat("auto a = (decltype(c))-b;", Macros);
+
+  verifyFormat("LIST(int) a = (LIST(int))*b;", Macros);
+  verifyFormat("LIST(int) a = (LIST(int))***b;", Macros);
+  verifyFormat("LIST(int) a = (LIST(int))(*b);", Macros);
+  verifyFormat("LIST(int) a = (LIST(int))*(b);", Macros);
+  verifyFormat("LIST(int) a = (LIST(int))&b;", Macros);
+  verifyFormat("LIST(int) a = (LIST(int))-b;", Macros);
+
+  Macros.SpaceAfterCStyleCast = true;
+
+  verifyFormat("auto a = (decltype(c)) *b;", Macros);
+  verifyFormat("auto a = (decltype(c)) ***b;", Macros);
+  verifyFormat("auto a = (decltype(c)) (*b);", Macros);
+  verifyFormat("auto a = (decltype(c)) *(b);", Macros);
+  verifyFormat("auto a = (decltype(c)) &b;", Macros);
+  verifyFormat("auto a = (decltype(c)) -b;", Macros);
+
+  verifyFormat("LIST(int) a = (LIST(int)) *b;", Macros);
+  verifyFormat("LIST(int) a = (LIST(int)) ***b;", Macros);
+  verifyFormat("LIST(int) a = (LIST(int)) (*b);", Macros);
+  verifyFormat("LIST(int) a = (LIST(int)) *(b);", Macros);
+  verifyFormat("LIST(int) a = (LIST(int)) &b;", Macros);
+  verifyFormat("LIST(int) a = (LIST(int)) -b;", Macros);
+}
+
 TEST_F(FormatTest, DecltypeOrTypenameMacroDeclarationContinuation) {
   std::vector<std::string> TypenameMacros = {"STACK_OF"};
   FormatStyle Style = getLLVMStyle();
