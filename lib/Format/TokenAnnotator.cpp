@@ -2639,7 +2639,14 @@ bool TokenAnnotator::mustBreakBefore(const AnnotatedLine &Line,
     // type var = {     // <-- between = and {
     //     ...
     // };
-    if (PrevNoComment && PrevNoComment->is(tok::equal) &&
+    //
+    // or
+    //
+    // (type) {        // <-- between ) and {
+    //     ...
+    // };
+    if (PrevNoComment && PrevNoComment->isOneOf(tok::equal,
+                                                tok::r_paren) &&
             NextNoComment && NextNoComment->is(tok::l_brace)) {
         return false;
     }
