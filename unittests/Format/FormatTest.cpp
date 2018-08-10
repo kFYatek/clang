@@ -12114,6 +12114,17 @@ TEST_F(FormatTest, DecltypeOrTypenameMacroDeclarationContinuation) {
                Style);
 }
 
+TEST_F(FormatTest, NoBreakBeforeCompoundInitializerBrace) {
+  FormatStyle Style = getLLVMStyle();
+  Style.BreakDesignatedInitializers = true;
+  Style.DesignatedInitializerContinuationIndentWidth = 4;
+
+  verifyFormat("foo_t foo = (foo_t){\n"
+               "    .foo = foo,\n"
+               "    .bar = bar\n"
+               "};", Style);
+}
+
 } // end namespace
 } // end namespace format
 } // end namespace clang
