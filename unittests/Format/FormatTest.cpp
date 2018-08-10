@@ -12204,6 +12204,22 @@ TEST_F(FormatTest, ExpressionInCaseLabel) {
                  "}");
 }
 
+TEST_F(FormatTest, ConsecutiveCStyleCasts) {
+  FormatStyle Style = getLLVMStyle();
+
+  verifyFormat("auto x = (type_t)(intptr_t)*a;", Style);
+  verifyFormat("auto x = (void *)(intptr_t)&a;", Style);
+  verifyFormat("auto x = (void *)(intptr_t)(a + 1);", Style);
+  verifyFormat("return (type_t)(intptr_t)*a;", Style);
+
+  Style.SpaceAfterCStyleCast = true;
+
+  verifyFormat("auto x = (type_t) (intptr_t) *a;", Style);
+  verifyFormat("auto x = (void *) (intptr_t) &a;", Style);
+  verifyFormat("auto x = (void *) (intptr_t) (a + 1);", Style);
+  verifyFormat("return (type_t) (intptr_t) *a;", Style);
+}
+
 } // end namespace
 } // end namespace format
 } // end namespace clang
