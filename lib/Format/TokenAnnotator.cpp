@@ -1349,9 +1349,30 @@ private:
         Tok.Previous->isSimpleTypeSpecifier() ||
         (Tok.MatchingParen && Tok.MatchingParen->Next &&
          Tok.MatchingParen->Next->is(tok::kw_decltype));
+
+    // TODO: find a simpler way of expressing this
+    // Parens around a single identifier may mean casting but not necessarily,
+    // especially in macro definitions
+    bool ParensAreProbablyType =
+      Tok.MatchingParen && Tok.MatchingParen->Next &&
+      // function or macro definition?
+      (!Line.InPPDirective ||
+       (Tok.MatchingParen->Previous &&
+        !Tok.MatchingParen->Previous->is(tok::identifier))) &&
+      // either a plain type or pointer/reference
+      (Tok.MatchingParen->Next == Tok.Previous ||
+       Tok.Previous->is(TT_PointerOrReference)) &&
+      (Tok.Next->isOneOf(tok::l_brace, // compound initializer
+                         // expression or cast chain
+                         tok::l_paren, tok::identifier, TT_UnaryOperator) ||
+       Tok.Tok.isLiteral());
+
     bool ParensCouldEndDecl =
-        Tok.Next->isOneOf(tok::equal, tok::semi, tok::l_brace, tok::greater);
-    if (ParensAreType && !ParensCouldEndDecl)
+        Tok.Next->isOneOf(tok::equal, tok::semi, tok::l_brace,
+                          tok::greater) &&
+        // Handle C99 compound initializers like C-style casts
+        Tok.Next->BlockKind != BK_BracedInit;
+    if ((ParensAreType || ParensAreProbablyType) && !ParensCouldEndDecl)
       return true;
 
     // At this point, we heuristically assume that there are no casts at the
@@ -2651,8 +2672,8 @@ bool TokenAnnotator::mustBreakBefore(const AnnotatedLine &Line,
     // (type){ // <-- between ) and {
     //     ...
     // };
-    if (Left.is(tok::r_paren) && Left.MatchingParen &&
-            Left.MatchingParen->startsC99CompoundInitializer()) {
+    if (Left.is(TT_CastRParen) && Right.is(tok::l_brace) &&
+        Right.BlockKind == BK_BracedInit) {
         return false;
     }
 
