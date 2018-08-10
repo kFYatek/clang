@@ -1346,7 +1346,9 @@ private:
     bool ParensAreType =
         !Tok.Previous ||
         Tok.Previous->isOneOf(TT_PointerOrReference, TT_TemplateCloser) ||
-        Tok.Previous->isSimpleTypeSpecifier();
+        Tok.Previous->isSimpleTypeSpecifier() ||
+        (Tok.MatchingParen && Tok.MatchingParen->Next &&
+         Tok.MatchingParen->Next->is(tok::kw_decltype));
     bool ParensCouldEndDecl =
         Tok.Next->isOneOf(tok::equal, tok::semi, tok::l_brace, tok::greater);
     if (ParensAreType && !ParensCouldEndDecl)
