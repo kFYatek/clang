@@ -748,6 +748,9 @@ private:
       if (Tok->isOneOf(Keywords.kw___has_include,
                        Keywords.kw___has_include_next)) {
         parseHasInclude();
+      } else if (Line.First->is(tok::kw_case)) {
+        // case labels may be simple identifiers or constant expressions
+        Contexts.back().IsExpression = true;
       }
       break;
     default:
