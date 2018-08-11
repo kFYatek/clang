@@ -12128,6 +12128,9 @@ TEST_F(FormatTest, NoBreakBeforeCompoundInitializerBrace) {
                "// comment\n"
                "{\n"
                "}", Style);
+  verifyFormat("return (foo_t){\n"
+               "    .foo = foo\n"
+               "};", Style);
 }
 
 } // end namespace
