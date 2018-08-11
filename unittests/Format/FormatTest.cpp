@@ -12167,6 +12167,9 @@ TEST_F(FormatTest, NoBreakBeforeCompoundInitializerBrace) {
   verifyFormat("return (foo_t){\n"
                "    .foo = foo\n"
                "};", Style);
+  verifyFormat("return (struct foo){\n"
+               "    .foo = foo\n"
+               "};", Style);
 }
 
 TEST_F(FormatTest, ExpressionInCaseLabel) {
