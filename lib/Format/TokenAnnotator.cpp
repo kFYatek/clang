@@ -1348,7 +1348,10 @@ private:
         Tok.Previous->isOneOf(TT_PointerOrReference, TT_TemplateCloser) ||
         Tok.Previous->isSimpleTypeSpecifier() ||
         (Tok.MatchingParen && Tok.MatchingParen->Next &&
-         Tok.MatchingParen->Next->is(tok::kw_decltype));
+         Tok.MatchingParen->Next->isOneOf(tok::kw_decltype, tok::kw_typeof,
+                                          tok::kw_struct, tok::kw_class,
+                                          tok::kw_union, tok::kw_enum,
+                                          tok::kw_const, tok::kw_typename));
 
     // TODO: find a simpler way of expressing this
     // Parens around a single identifier may mean casting but not necessarily,
