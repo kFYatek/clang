@@ -11,6 +11,10 @@ set(CLANG_FORMAT_LIB_DEPS
   clangToolingCore
   )
 
+if( CMAKE_SYSTEM_NAME STREQUAL "Emscripten" )
+  list(APPEND CLANG_FORMAT_LIB_DEPS nodefs.js)
+endif()
+
 target_link_libraries(clang-format
   PRIVATE
   ${CLANG_FORMAT_LIB_DEPS}

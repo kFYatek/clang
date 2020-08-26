@@ -13,6 +13,10 @@
 ///
 //===----------------------------------------------------------------------===//
 
+#ifdef __EMSCRIPTEN__
+#  include <emscripten.h>
+#endif
+
 #include "clang/Basic/Diagnostic.h"
 #include "clang/Basic/DiagnosticOptions.h"
 #include "clang/Basic/FileManager.h"
@@ -337,6 +341,22 @@ static void PrintVersion(raw_ostream &OS) {
 }
 
 int main(int argc, const char **argv) {
+#ifdef __EMSCRIPTEN__
+  EM_ASM({
+    var cwd = process.cwd();
+    var subroot = cwd.substr(0, cwd.indexOf('/', 1));
+    try {
+      FS.mkdir(subroot);
+    } catch (err) {
+      // This probably means that we tried to recreate one of the directories
+      // that exist by default in Emscripten's virtual filesystem, e.g. /tmp.
+      // Let's ignore that and try mounting anyway.
+    }
+    FS.mount(NODEFS, { root: subroot }, subroot);
+    FS.chdir(cwd);
+  });
+#endif
+
   llvm::sys::PrintStackTraceOnErrorSignal(argv[0]);
 
   cl::HideUnrelatedOptions(ClangFormatCategory);
